@@ -15,7 +15,7 @@ from house_prices_model.predict import make_prediction
 
 def test_make_prediction(sample_input_data):
     # Given
-    expected_num_of_predictions = 3476
+    expected_num_of_predictions = 50
 
     # When
     result = make_prediction(input_data = sample_input_data[0])
