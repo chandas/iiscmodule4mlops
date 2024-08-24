@@ -20,15 +20,15 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements/requirements.txt
+          pip install -r house_prices_project/requirements/requirements.txt
 
       - name: Train and save model
         run: |
-          python house_prices_model/train_pipeline.py
+          python house_prices_project/house_prices_model/train_pipeline.py
       - uses: actions/upload-artifact@v2
         with:
           name: my-trained-pipeline
-          path: house_prices_model/trained_models/*.pkl
+          path: house_prices_project/house_prices_model/trained_models/*.pkl
           retention-days: 1
 
   test:
@@ -45,12 +45,12 @@ jobs:
       - uses: actions/download-artifact@v2
         with:
           name: my-trained-pipeline
-          path: house_prices_model/trained_models
+          path: house_prices_project/house_prices_model/trained_models
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements/test_requirements.txt
+          pip install -r house_prices_project/requirements/test_requirements.txt
 
       - name: Run tests
         run: |
@@ -71,7 +71,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements/requirements.txt
+          pip install -r house_prices_project/requirements/requirements.txt
           pip install black pylint
 
       - name: Lint code
@@ -96,7 +96,7 @@ jobs:
       - uses: actions/download-artifact@v2
         with:
           name: my-trained-pipeline
-          path: house_prices_model/trained_models
+          path: house_prices_project/house_prices_model/trained_models
 
       - name: Install dependencies
         run: |
@@ -125,7 +125,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: my-build-package
-          path: house_prices_model_api
+          path: house_prices_project/house_prices_model_api
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
