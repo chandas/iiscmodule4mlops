@@ -1,0 +1,144 @@
+name: Push a Docker Image
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  train-model:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r house_prices_project/requirements/requirements.txt
+
+      - name: Train and save model
+        run: |
+          python house_prices_project/house_prices_model/train_pipeline.py
+      - uses: actions/upload-artifact@v2
+        with:
+          name: my-trained-pipeline
+          path: house_prices_project/house_prices_model/trained_models/*.pkl
+          retention-days: 1
+
+  test:
+    runs-on: ubuntu-latest
+    needs: train-model
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.10'
+      - uses: actions/download-artifact@v2
+        with:
+          name: my-trained-pipeline
+          path: house_prices_project/house_prices_model/trained_models
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r house_prices_project/requirements/test_requirements.txt
+
+      - name: Run tests
+        run: |
+          pytest
+
+  lint-and-format:
+    runs-on: ubuntu-latest
+    needs: train-model
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r house_prices_project/requirements/requirements.txt
+          pip install black pylint
+
+      - name: Lint code
+        run: |
+          pylint .
+
+      - name: Format code
+        run: |
+          black .
+
+  build-package:
+    runs-on: ubuntu-latest
+    needs: [train-model]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.10'
+      - uses: actions/download-artifact@v2
+        with:
+          name: my-trained-pipeline
+          path: house_prices_project/house_prices_model/trained_models
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade build
+          pip install setuptools wheel
+
+      - name: Build package
+        run: |
+          python -m build
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: my-build-package
+          path: dist/*.whl
+          retention-days: 1
+
+  dockerize-and-push:
+    runs-on: ubuntu-latest
+    needs: [train-model, build-package]
+    steps:
+      - name: Checkout Repo code
+        uses: actions/checkout@v3
+
+      - name: Download built package
+        uses: actions/download-artifact@v3
+        with:
+          name: my-build-package
+          path: house_prices_project/house_prices_model_api
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: true
+          tags: chanduji14/house_prices_model_api:latest
