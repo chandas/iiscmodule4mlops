@@ -140,5 +140,6 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: house_prices_project
+          dockerfile: house_prices_project/Dockerfile
           push: true
           tags: chanduji14/house_prices_model_api:latest
