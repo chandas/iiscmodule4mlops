@@ -111,7 +111,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: my-build-package
-          path: dist/*.whl
+          path: house_prices_project/dist/*.whl
           retention-days: 1
 
   dockerize-and-push:
