@@ -1,0 +1,39 @@
+# Package Overview
+package_name: house_prices_model
+
+# Data Files
+training_data_file: house_prices_dataset.csv
+
+# Variables
+# The variable we are attempting to predict (cnt)
+target: price
+
+pipeline_name: house_prices_model
+pipeline_save_file: house_prices__model_output_v
+
+# Features that will go inside processing pipeline
+features:
+  - size
+  - bedrooms
+  - age
+  - distance
+
+
+# unused_fields:  # Features to drop before pipeline
+
+# Features names
+
+size_var: size
+rooms_var: bedrooms
+age_var: age
+distance_var: distance
+
+# Set train/test split
+test_size: 0.20
+
+# Set the random seed
+random_state: 42
+
+# Alogrithm parameters
+n_estimators: 100
+max_depth: 10
