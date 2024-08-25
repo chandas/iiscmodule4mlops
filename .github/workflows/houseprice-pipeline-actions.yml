@@ -1,4 +1,4 @@
-name: Push a Docker Image
+name: House Price Predict CI Pipeline
 
 on:
   push:
